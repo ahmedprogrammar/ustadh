@@ -38,6 +38,7 @@ input[type=text]{font:inherit;padding:11px 12px;border:1px solid var(--line);bor
 .result .sp{height:6px}
 .result .li{padding-right:6px}
 .result .iq,.result i{color:var(--muted);font-style:normal;font-size:15px}
+.result .iqline{color:var(--muted);font-size:15px;border-right:3px solid var(--line);padding-right:10px;margin:4px 0 10px}
 .err{color:var(--red);font-size:15px}
 .note{color:var(--muted);font-size:13px;text-align:center}
 .spin{display:inline-block;width:16px;height:16px;border:3px solid var(--pen-soft);border-top-color:var(--pen);border-radius:50%;animation:s .8s linear infinite;vertical-align:-3px;margin-left:8px}
@@ -91,6 +92,7 @@ function renderMd(md){
     let m;
     if ((m = t.match(/^#{1,6}\s+(.*)$/))) return '<h3>' + inline(m[1]) + '</h3>';
     if ((m = t.match(/^[-•]\s+(.*)$/))) return '<div class="li">• ' + inline(m[1]) + '</div>';
+    if (/^\(?\*?بالعراقي/.test(t)) return '<div class="iqline">' + inline(t) + '</div>';
     if (t === "") return '<div class="sp"></div>';
     return '<div>' + inline(line) + '</div>';
   }).join("");
