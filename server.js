@@ -88,19 +88,31 @@ app.post("/api/solve", async (req, res) => {
     let answer = "";
 
     if (PROVIDER === "gemini") {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
-      const r = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: media, data: image } }] }],
-          generationConfig: { temperature: 0.2 }
-        })
-      });
-      if (!r.ok) { console.error("Gemini error:", r.status, await r.text());
-        return res.status(502).json({ error: "صار خطأ بالاتصال بالذكاء الاصطناعي. جرب مرة ثانية." }); }
-      const j = await r.json();
-      answer = j?.candidates?.[0]?.content?.parts?.map(p => p.text).join("") || "";
+      // نجرب أكثر من اسم موديل لحد ما يشتغل واحد منهم
+      const candidates = [GEMINI_MODEL, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest", "gemini-1.5-flash"]
+        .filter((v, i, a) => v && a.indexOf(v) === i);
+      let lastErr = "";
+      for (const model of candidates) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+        const r = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: media, data: image } }] }],
+            generationConfig: { temperature: 0.2 }
+          })
+        });
+        if (r.ok) {
+          const j = await r.json();
+          answer = j?.candidates?.[0]?.content?.parts?.map(p => p.text).join("") || "";
+          break;
+        }
+        lastErr = `[${model}] ${r.status}: ${(await r.text()).slice(0, 300)}`;
+        console.error("Gemini error:", lastErr);
+      }
+      if (!answer) {
+        return res.status(502).json({ error: "تعذّر الحل. التفاصيل التقنية: " + lastErr });
+      }
     } else {
       // Claude (Anthropic)
       const r = await fetch("https://api.anthropic.com/v1/messages", {
