@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لوحة التحكم - أستاذ بجيبك</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0f1424;color:#e6e9f4;font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif}
+.wrap{max-width:640px;margin:0 auto;padding:24px 16px;display:flex;flex-direction:column;gap:16px}
+h1{font-size:24px;margin:0}
+.card{background:#161c30;border:1px solid #28304a;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+input{font:inherit;padding:11px;border-radius:9px;border:1px solid #28304a;background:#0f1424;color:#e6e9f4}
+button{font:inherit;font-weight:600;border:0;border-radius:9px;padding:12px;cursor:pointer;font-size:16px}
+.on{background:#1f7a4d;color:#fff}
+.off{background:#c2332b;color:#fff}
+.load{background:#2a3350;color:#e6e9f4}
+.stat{display:flex;gap:10px;flex-wrap:wrap}
+.pill{background:#0f1424;border:1px solid #28304a;border-radius:10px;padding:10px 14px;flex:1;text-align:center}
+.pill b{display:block;font-size:22px;color:#86a2ff}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:right;padding:8px;border-bottom:1px solid #28304a}
+.muted{color:#99a2bf;font-size:13px}
+.err{color:#ff7a70}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:13px}
+.b-on{background:rgba(31,122,77,.2);color:#5fd39a}
+.b-off{background:rgba(194,51,43,.2);color:#ff7a70}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>لوحة التحكم</h1>
+
+  <div class="card" id="login">
+    <label class="muted">كلمة السر</label>
+    <input type="password" id="pass" placeholder="كلمة السر">
+    <button class="load" onclick="load()">دخول</button>
+    <p class="err" id="lerr" hidden></p>
+  </div>
+
+  <div id="panel" hidden>
+    <div class="card">
+      <div>الحالة: <span id="stateBadge" class="badge"></span></div>
+      <div class="stat">
+        <div class="pill"><b id="nUsers">0</b>عدد المستخدمين</div>
+        <div class="pill"><b id="nSolved">0</b>عدد الأسئلة المحلولة</div>
+      </div>
+      <button id="toggleBtn" onclick="toggle()"></button>
+      <button class="load" onclick="load()">تحديث</button>
+    </div>
+
+    <div class="card">
+      <b>المستخدمين</b>
+      <table>
+        <thead><tr><th>الاسم</th><th>عدد الأسئلة</th><th>آخر استخدام</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="muted" id="empty" hidden>ماكو مستخدمين بعد.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+let PASS = "";
+function fmt(t){ if(!t) return "-"; const d=new Date(t); return d.toLocaleString("ar"); }
+
+async function load(){
+  PASS = document.getElementById("pass").value || PASS;
+  const lerr = document.getElementById("lerr"); lerr.hidden = true;
+  try{
+    const r = await fetch("/api/admin/status", { headers: { "x-admin-pass": PASS } });
+    const j = await r.json();
+    if(!r.ok){ lerr.textContent = j.error || "خطأ"; lerr.hidden = false; return; }
+
+    document.getElementById("login").hidden = true;
+    document.getElementById("panel").hidden = false;
+
+    const badge = document.getElementById("stateBadge");
+    badge.textContent = j.enabled ? "شغّال" : "موقوف";
+    badge.className = "badge " + (j.enabled ? "b-on" : "b-off");
+
+    const btn = document.getElementById("toggleBtn");
+    btn.textContent = j.enabled ? "⏸️ إيقاف التجربة" : "▶️ تشغيل التجربة";
+    btn.className = j.enabled ? "off" : "on";
+    btn.dataset.next = j.enabled ? "0" : "1";
+
+    document.getElementById("nUsers").textContent = j.userCount;
+    document.getElementById("nSolved").textContent = j.totalSolved;
+
+    const rows = document.getElementById("rows");
+    rows.innerHTML = "";
+    j.users.forEach(u => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${u.name}</td><td>${u.count}</td><td>${fmt(u.last)}</td>`;
+      rows.appendChild(tr);
+    });
+    document.getElementById("empty").hidden = j.users.length > 0;
+  }catch(e){
+    lerr.textContent = "ماكو اتصال."; lerr.hidden = false;
+  }
+}
+async function toggle(){
+  const next = document.getElementById("toggleBtn").dataset.next === "1";
+  await fetch("/api/admin/toggle", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-admin-pass": PASS },
+    body: JSON.stringify({ enabled: next })
+  });
+  load();
+}
+</script>
+</body>
+</html>

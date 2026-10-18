@@ -1,0 +1,16 @@
+{
+  "name": "ustadh-bjebak",
+  "version": "1.0.0",
+  "description": "أستاذ بجيبك - حل أسئلة السادس العلمي من الصورة على طريقة الكتاب العراقي",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

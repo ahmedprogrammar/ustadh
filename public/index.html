@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>أستاذ بجيبك</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#f7f8fb; --sheet:#fff; --ink:#16203a; --muted:#5b6582;
+  --pen:#1f45c4; --pen-soft:rgba(31,69,196,.08); --red:#c2332b; --ok:#1f7a4d; --line:#dfe3ee;
+  --f-display:"Reem Kufi",Tahoma,sans-serif; --f-body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);
+  background-image:linear-gradient(rgba(40,70,160,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(40,70,160,.06) 1px,transparent 1px);
+  background-size:22px 22px;min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:24px 16px 60px;display:flex;flex-direction:column;gap:18px}
+header{text-align:center}
+h1{font-family:var(--f-display);font-weight:700;font-size:34px;color:var(--pen);margin:0}
+.sub{color:var(--muted);margin:6px 0 0;font-size:15px}
+.card{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.tabs{display:flex;gap:8px;justify-content:center}
+.tabs button{font:inherit;font-family:var(--f-display);font-size:17px;border:1.5px solid var(--line);background:var(--sheet);color:var(--muted);padding:7px 24px;border-radius:999px;cursor:pointer}
+.tabs button[aria-selected="true"]{border-color:var(--pen);color:var(--pen);background:var(--pen-soft)}
+input[type=text]{font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:9px;width:100%}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:26px;text-align:center;cursor:pointer;color:var(--muted);display:flex;flex-direction:column;gap:8px;align-items:center}
+.drop:hover{border-color:var(--pen);color:var(--pen)}
+.drop img{max-height:280px;border-radius:8px}
+.drop strong{color:var(--ink)}
+.btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:13px;cursor:pointer;background:var(--pen);color:#fff;font-size:17px}
+.btn:disabled{opacity:.5}
+.result{white-space:pre-wrap;line-height:1.9;font-size:16px}
+.err{color:var(--red);font-size:15px}
+.note{color:var(--muted);font-size:13px;text-align:center}
+.spin{display:inline-block;width:16px;height:16px;border:3px solid var(--pen-soft);border-top-color:var(--pen);border-radius:50%;animation:s .8s linear infinite;vertical-align:-3px;margin-left:8px}
+@keyframes s{to{transform:rotate(360deg)}}
+label.lbl{font-size:14px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>أستاذ بجيبك</h1>
+    <p class="sub">صوّر سؤال الرياضيات أو الفيزياء، ويحله خطوة بخطوة على طريقة الكتاب العراقي</p>
+  </header>
+
+  <div class="card">
+    <div class="tabs">
+      <button id="t-math" aria-selected="true" onclick="setSubj('math')">رياضيات</button>
+      <button id="t-phys" aria-selected="false" onclick="setSubj('physics')">فيزياء</button>
+    </div>
+
+    <div>
+      <label class="lbl" for="student">اسمك (اختياري):</label>
+      <input type="text" id="student" placeholder="مثلاً: علي السادس العلمي">
+    </div>
+
+    <div class="drop" id="drop" onclick="file.click()">
+      <strong>اضغط هنا وصوّر السؤال</strong>
+      <span>أو اختر صورة من الاستوديو</span>
+      <img id="preview" hidden>
+    </div>
+    <input type="file" id="file" accept="image/*" capture="environment" hidden onchange="pick(event)">
+
+    <button class="btn" id="solve" onclick="solve()">حل السؤال</button>
+    <p class="err" id="err" hidden></p>
+  </div>
+
+  <div class="card" id="resultCard" hidden>
+    <div class="result" id="result"></div>
+  </div>
+</div>
+
+<script>
+let subject = "math", imgData = null, imgMime = null;
+
+function setSubj(s){
+  subject = s;
+  math.setAttribute ? 0 : 0;
+  document.getElementById("t-math").setAttribute("aria-selected", s==="math");
+  document.getElementById("t-phys").setAttribute("aria-selected", s==="physics");
+}
+function pick(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const d = reader.result;
+    imgMime = d.substring(5, d.indexOf(";"));
+    imgData = d.substring(d.indexOf(",")+1);
+    const p = document.getElementById("preview");
+    p.src = d; p.hidden = false;
+  };
+  reader.readAsDataURL(f);
+}
+async function solve(){
+  const err = document.getElementById("err");
+  err.hidden = true;
+  if(!imgData){ err.textContent = "صوّر السؤال أول."; err.hidden = false; return; }
+
+  const btn = document.getElementById("solve");
+  btn.disabled = true; btn.innerHTML = 'دا يحل <span class="spin"></span>';
+  const rc = document.getElementById("resultCard"), rb = document.getElementById("result");
+  rc.hidden = false; rb.textContent = "دا يقرا السؤال ويحله...";
+
+  try{
+    const r = await fetch("/api/solve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        image: imgData, mimeType: imgMime, subject,
+        student: document.getElementById("student").value
+      })
+    });
+    const j = await r.json();
+    if(!r.ok){ rc.hidden = true; err.textContent = j.error || "صار خطأ."; err.hidden = false; }
+    else rb.textContent = j.answer;
+  }catch(e){
+    rc.hidden = true; err.textContent = "ماكو اتصال. تأكد من الانترنت وجرب مرة ثانية."; err.hidden = false;
+  }finally{
+    btn.disabled = false; btn.textContent = "حل السؤال";
+  }
+}
+</script>
+</body>
+</html>

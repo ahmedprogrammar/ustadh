@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: ustadh-bjebak
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      # حط مفتاح واحد بس: GEMINI_API_KEY (مجاني) أو CLAUDE_API_KEY (مدفوع)
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
