@@ -31,7 +31,13 @@ input[type=text]{font:inherit;padding:11px 12px;border:1px solid var(--line);bor
 .drop strong{color:var(--ink)}
 .btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:13px;cursor:pointer;background:var(--pen);color:#fff;font-size:17px}
 .btn:disabled{opacity:.5}
-.result{white-space:pre-wrap;line-height:1.9;font-size:16px}
+.result{line-height:1.9;font-size:16px;overflow-wrap:anywhere}
+.result h3{font-family:var(--f-display);color:var(--pen);font-size:19px;margin:14px 0 6px}
+.result b{color:var(--ink)}
+.result hr{border:0;border-top:1px dashed var(--line);margin:14px 0}
+.result .sp{height:6px}
+.result .li{padding-right:6px}
+.result .iq,.result i{color:var(--muted);font-style:normal;font-size:15px}
 .err{color:var(--red);font-size:15px}
 .note{color:var(--muted);font-size:13px;text-align:center}
 .spin{display:inline-block;width:16px;height:16px;border:3px solid var(--pen-soft);border-top-color:var(--pen);border-radius:50%;animation:s .8s linear infinite;vertical-align:-3px;margin-left:8px}
@@ -76,6 +82,25 @@ label.lbl{font-size:14px;color:var(--muted)}
 <script>
 let subject = "math", imgData = null, imgMime = null;
 
+// تحويل التنسيق (### و ** و ---) لعناوين وخط عريض بشكل آمن
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function renderMd(md){
+  return esc(md).split("\n").map(line => {
+    const t = line.trim();
+    if (/^-{3,}$/.test(t)) return '<hr>';
+    let m;
+    if ((m = t.match(/^#{1,6}\s+(.*)$/))) return '<h3>' + inline(m[1]) + '</h3>';
+    if ((m = t.match(/^[-•]\s+(.*)$/))) return '<div class="li">• ' + inline(m[1]) + '</div>';
+    if (t === "") return '<div class="sp"></div>';
+    return '<div>' + inline(line) + '</div>';
+  }).join("");
+}
+function inline(s){
+  return s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+          .replace(/\*\((.+?)\)\*/g, '<span class="iq">($1)</span>')
+          .replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, '$1<i>$2</i>');
+}
+
 function setSubj(s){
   subject = s;
   math.setAttribute ? 0 : 0;
@@ -116,7 +141,7 @@ async function solve(){
     });
     const j = await r.json();
     if(!r.ok){ rc.hidden = true; err.textContent = j.error || "صار خطأ."; err.hidden = false; }
-    else rb.textContent = j.answer;
+    else rb.innerHTML = renderMd(j.answer);
   }catch(e){
     rc.hidden = true; err.textContent = "ماكو اتصال. تأكد من الانترنت وجرب مرة ثانية."; err.hidden = false;
   }finally{
