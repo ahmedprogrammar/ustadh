@@ -1,0 +1,7 @@
+{
+  "appId": "iq.ustadh.bjebak",
+  "appName": "أستاذ بجيبك",
+  "webDir": "www",
+  "server": { "url": "https://ustadh-bjebak-production.up.railway.app", "cleartext": false },
+  "android": { "backgroundColor": "#0f1b3d" }
+}
