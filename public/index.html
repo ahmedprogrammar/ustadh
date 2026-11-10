@@ -1,154 +1,428 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>أستاذ بجيبك</title>
+<meta name="theme-color" content="#0f1b3d">
+<title>أستاذ بجيبك — السادس العلمي</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@500;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --paper:#f7f8fb; --sheet:#fff; --ink:#16203a; --muted:#5b6582;
-  --pen:#1f45c4; --pen-soft:rgba(31,69,196,.08); --red:#c2332b; --ok:#1f7a4d; --line:#dfe3ee;
-  --f-display:"Reem Kufi",Tahoma,sans-serif; --f-body:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
+  --ink:#0f1b3d; --ink2:#1b2a57; --bg:#f4f1ea; --card:#fff; --line:#e6e0d3; --muted:#6b6f80;
+  --gold:#e9a23b; --gold2:#fff3dc; --ok:#1f9d6b; --okbg:#e3f6ee; --bad:#d64545; --badbg:#fde8e8;
 }
-*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--f-body);
-  background-image:linear-gradient(rgba(40,70,160,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(40,70,160,.06) 1px,transparent 1px);
-  background-size:22px 22px;min-height:100vh}
-.wrap{max-width:720px;margin:0 auto;padding:24px 16px 60px;display:flex;flex-direction:column;gap:18px}
-header{text-align:center}
-h1{font-family:var(--f-display);font-weight:700;font-size:34px;color:var(--pen);margin:0}
-.sub{color:var(--muted);margin:6px 0 0;font-size:15px}
-.card{background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px}
-.tabs{display:flex;gap:8px;justify-content:center}
-.tabs button{font:inherit;font-family:var(--f-display);font-size:17px;border:1.5px solid var(--line);background:var(--sheet);color:var(--muted);padding:7px 24px;border-radius:999px;cursor:pointer}
-.tabs button[aria-selected="true"]{border-color:var(--pen);color:var(--pen);background:var(--pen-soft)}
-input[type=text]{font:inherit;padding:11px 12px;border:1px solid var(--line);border-radius:9px;width:100%}
-.drop{border:2px dashed var(--line);border-radius:12px;padding:26px;text-align:center;cursor:pointer;color:var(--muted);display:flex;flex-direction:column;gap:8px;align-items:center}
-.drop:hover{border-color:var(--pen);color:var(--pen)}
-.drop img{max-height:280px;border-radius:8px}
-.drop strong{color:var(--ink)}
-.btn{font:inherit;font-weight:600;border:0;border-radius:10px;padding:13px;cursor:pointer;background:var(--pen);color:#fff;font-size:17px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;font-size:16px;line-height:1.6}
+button,input,select{font:inherit}
+.app{max-width:520px;margin:0 auto;min-height:100vh;padding-bottom:88px}
+.top{background:var(--ink);color:#fff;padding:18px 18px 22px;border-radius:0 0 22px 22px}
+.top .row{display:flex;justify-content:space-between;align-items:center}
+.brand{font-weight:700;font-size:20px}.brand span{color:var(--gold)}
+.pill{background:rgba(255,255,255,.12);border-radius:99px;padding:4px 12px;font-size:13px}
+.pill.gold{background:var(--gold);color:var(--ink);font-weight:600}
+.count{margin-top:14px;display:flex;align-items:baseline;gap:8px}
+.count b{font-size:34px;color:var(--gold);line-height:1}
+.count small{opacity:.8}
+main{padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
+h2{font-size:19px;margin:0 0 6px}h3{font-size:16px;margin:16px 0 6px}
+.muted{color:var(--muted);font-size:14px}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:14px;font-weight:700;font-size:16px;cursor:pointer;background:var(--ink);color:#fff}
+.btn.gold{background:var(--gold);color:var(--ink)}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.wa{background:#1fa855}
 .btn:disabled{opacity:.5}
-.result{line-height:1.9;font-size:16px;overflow-wrap:anywhere}
-.result h3{font-family:var(--f-display);color:var(--pen);font-size:19px;margin:14px 0 6px}
-.result b{color:var(--ink)}
-.result hr{border:0;border-top:1px dashed var(--line);margin:14px 0}
-.result .sp{height:6px}
-.result .li{padding-right:6px}
-.result .iq,.result i{color:var(--muted);font-style:normal;font-size:15px}
-.result .iqline{color:var(--muted);font-size:15px;border-right:3px solid var(--line);padding-right:10px;margin:4px 0 10px}
-.err{color:var(--red);font-size:15px}
-.note{color:var(--muted);font-size:13px;text-align:center}
-.spin{display:inline-block;width:16px;height:16px;border:3px solid var(--pen-soft);border-top-color:var(--pen);border-radius:50%;animation:s .8s linear infinite;vertical-align:-3px;margin-left:8px}
+.btn+.btn{margin-top:10px}
+label{display:block;font-size:14px;font-weight:600;margin:12px 0 6px}
+input,select{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:#fff;color:var(--ink)}
+input:focus,select:focus{outline:none;border-color:var(--gold)}
+.seg{display:flex;background:#ece7dc;border-radius:12px;padding:4px;gap:4px}
+.seg button{flex:1;border:0;background:transparent;border-radius:9px;padding:9px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.drop{border:2px dashed #d6ccb8;border-radius:16px;padding:22px;text-align:center;cursor:pointer;margin-top:12px;background:#fbf9f4}
+.drop img{max-width:100%;border-radius:10px;max-height:300px}
+.answer{line-height:1.9}
+.answer h3{background:var(--gold2);padding:6px 10px;border-radius:8px;font-size:15px}
+.answer hr{border:0;border-top:1px solid var(--line)}
+.err{background:var(--badbg);color:var(--bad);border-radius:12px;padding:10px 12px;margin-top:10px;font-size:14px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav .in{display:flex;max-width:520px;width:100%}
+nav button{flex:1;border:0;background:none;padding:10px 4px 12px;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer}
+nav button i{display:block;font-style:normal;font-size:21px}
+nav button.on{color:var(--ink)}nav button.on i{transform:scale(1.1)}
+.big{font-size:56px;font-weight:700;line-height:1;color:var(--ink)}
+.gapbox{border-radius:14px;padding:14px;margin:14px 0}
+.gapbox.bad{background:var(--badbg);color:#8b2323}.gapbox.ok{background:var(--okbg);color:#11593c}
+.chip{display:inline-block;background:#f1ece2;border-radius:99px;padding:3px 10px;font-size:13px;margin:3px}
+.weak{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.bar{height:7px;background:#eee;border-radius:9px;overflow:hidden;width:90px}.bar i{display:block;height:100%;background:var(--bad)}
+.opt{display:block;width:100%;text-align:right;border:1.5px solid var(--line);background:#fff;border-radius:12px;padding:12px;margin:7px 0;cursor:pointer;color:var(--ink)}
+.opt.on{border-color:var(--ink);background:#eef1fa;font-weight:600}
+.prog{height:6px;background:#e9e3d6;border-radius:9px;margin:10px 0 16px;overflow:hidden}.prog i{display:block;height:100%;background:var(--gold);transition:width .3s}
+.steps .st{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}
+.steps .n{width:30px;height:30px;border-radius:50%;background:#ece7dc;display:grid;place-items:center;font-weight:700;flex:none}
+.steps .st.done .n{background:var(--ok);color:#fff}
+.steps .st div{flex:1}
+.mini{width:auto;display:inline-block;padding:8px 14px;font-size:14px;border-radius:10px}
+.rankbig{display:flex;gap:10px}.rankbig .card{flex:1;text-align:center;margin:0}
+.rankbig b{font-size:30px;display:block}
+.modal{position:fixed;inset:0;background:rgba(15,27,61,.6);display:none;align-items:flex-end;justify-content:center;z-index:9}
+.modal.show{display:flex}
+.sheet{background:#fff;width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom))}
+.price{font-size:30px;font-weight:700}.price small{font-size:15px;color:var(--muted);font-weight:500}
+ul.feat{padding:0 18px 0 0;margin:10px 0}ul.feat li{margin:4px 0}
+.hero{padding:34px 20px 26px;background:var(--ink);color:#fff;border-radius:0 0 26px 26px}
+.hero h1{font-size:28px;line-height:1.35;margin:10px 0}.hero h1 span{color:var(--gold)}
+.hidden{display:none!important}
+.slider{display:flex;align-items:center;gap:10px}.slider input{flex:1;padding:0}.slider b{width:38px;text-align:center}
+.spin{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:s 1s linear infinite;vertical-align:middle}
 @keyframes s{to{transform:rotate(360deg)}}
-label.lbl{font-size:14px;color:var(--muted)}
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;z-index:20;font-size:14px}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>أستاذ بجيبك</h1>
-    <p class="sub">صوّر سؤال الرياضيات أو الفيزياء، ويحله خطوة بخطوة على طريقة الكتاب العراقي</p>
-  </header>
+<div class="app">
 
-  <div class="card">
-    <div class="tabs">
-      <button id="t-math" aria-selected="true" onclick="setSubj('math')">رياضيات</button>
-      <button id="t-phys" aria-selected="false" onclick="setSubj('physics')">فيزياء</button>
+<!-- ========== التسجيل ========== -->
+<section id="auth" class="hidden">
+  <div class="hero">
+    <div class="brand">أستاذ <span>بجيبك</span></div>
+    <h1>معدلك يحدد <span>كليتك</span>.<br>اعرف وين واقف هسه.</h1>
+    <div style="opacity:.85">امتحان قصير يطلعلك معدلك المتوقع، والفصول اللي تضيّع منها درجات، وأستاذ يحل أي سؤال تصوّره.</div>
+  </div>
+  <main>
+    <div class="card">
+      <div class="seg" style="margin-bottom:6px"><button id="tabNew" class="on" onclick="authMode('new')">حساب جديد</button><button id="tabOld" onclick="authMode('old')">عندي حساب</button></div>
+      <div id="newFields">
+        <label>اسمك</label><input id="fName" placeholder="مثلاً: علي حسين" autocomplete="name">
+      </div>
+      <label>رقم الهاتف</label><input id="fPhone" inputmode="numeric" placeholder="07xxxxxxxxx" autocomplete="tel">
+      <label>رمز سري (4 أرقام)</label><input id="fPin" inputmode="numeric" maxlength="4" placeholder="••••" type="password">
+      <div id="newFields2">
+        <label>محافظتك</label><select id="fProv"></select>
+        <label>الكلية اللي تحلم بيها</label><select id="fTarget"></select>
+      </div>
+      <div id="authErr" class="err hidden"></div>
+      <div style="height:14px"></div>
+      <button class="btn gold" id="authBtn" onclick="doAuth()">ابدأ — مجاناً</button>
     </div>
+  </main>
+</section>
 
-    <div>
-      <label class="lbl" for="student">اسمك (اختياري):</label>
-      <input type="text" id="student" placeholder="مثلاً: علي السادس العلمي">
-    </div>
-
-    <div class="drop" id="drop" onclick="file.click()">
-      <strong>اضغط هنا وصوّر السؤال</strong>
-      <span>أو اختر صورة من الاستوديو</span>
-      <img id="preview" hidden>
-    </div>
-    <input type="file" id="file" accept="image/*" hidden onchange="pick(event)">
-
-    <button class="btn" id="solve" onclick="solve()">حل السؤال</button>
-    <p class="err" id="err" hidden></p>
+<!-- ========== التطبيق ========== -->
+<section id="main" class="hidden">
+  <div class="top">
+    <div class="row"><div class="brand">أستاذ <span>بجيبك</span></div><div id="planPill" class="pill">مجاني</div></div>
+    <div class="count"><b id="daysLeft">—</b><small>يوم باقي على الوزاري</small></div>
   </div>
 
-  <div class="card" id="resultCard" hidden>
-    <div class="result" id="result"></div>
+  <main>
+  <!-- حل سؤال -->
+  <div id="v-solve">
+    <div class="card">
+      <h2>صوّر السؤال، وخذ الحل</h2>
+      <div class="muted" id="quotaTxt"></div>
+      <div style="height:12px"></div>
+      <div class="seg"><button data-sub="math" class="on">رياضيات</button><button data-sub="physics">فيزياء</button></div>
+      <div class="drop" id="drop" onclick="pick.click()"><div id="dropTxt">📷<br><b>اضغط وصوّر السؤال</b><br><span class="muted">أو اختار صورة من الاستوديو</span></div><img id="preview" class="hidden"></div>
+      <input type="file" id="pick" accept="image/*" capture="environment" class="hidden">
+      <div style="height:12px"></div>
+      <button class="btn" id="solveBtn" onclick="solve()" disabled>حل السؤال</button>
+      <div id="solveErr" class="err hidden"></div>
+    </div>
+    <div class="card hidden" id="answerCard"><div class="answer" id="answer"></div></div>
+  </div>
+
+  <!-- توقّع معدلك -->
+  <div id="v-predict" class="hidden">
+    <div id="predResult"></div>
+    <div class="card" id="predSteps">
+      <h2>توقّع معدلك</h2>
+      <div class="muted">3 خطوات، 10 دقايق. وتعرف بالضبط شكد ناقصك للكلية اللي تريدها.</div>
+      <div class="steps" id="stepsList"></div>
+    </div>
+    <div class="card hidden" id="quizBox"></div>
+    <div class="card hidden" id="marksBox">
+      <h2>درجاتك المتوقعة بباقي المواد</h2>
+      <div class="muted">كون صريح ويا نفسك، حتى يطلع التوقّع صحيح.</div>
+      <div id="sliders"></div>
+      <div style="height:14px"></div>
+      <button class="btn" onclick="saveMarks()">احسب معدلي</button>
+      <button class="btn ghost" onclick="showPredict()">رجوع</button>
+    </div>
+  </div>
+
+  <!-- ترتيبي -->
+  <div id="v-rank" class="hidden"></div>
+
+  <!-- حسابي -->
+  <div id="v-me" class="hidden"></div>
+  </main>
+</section>
+</div>
+
+<nav id="nav" class="hidden"><div class="in">
+  <button data-v="solve" class="on"><i>📷</i>حل سؤال</button>
+  <button data-v="predict"><i>🎯</i>توقّع معدلك</button>
+  <button data-v="rank"><i>🏆</i>ترتيبي</button>
+  <button data-v="me"><i>👤</i>حسابي</button>
+</div></nav>
+
+<!-- نافذة الباقة -->
+<div class="modal" id="payModal" onclick="if(event.target===this)closePay()">
+  <div class="sheet">
+    <div class="muted" id="payWhy"></div>
+    <h2 style="margin-top:6px">باقة الوزاري 🎓</h2>
+    <div class="price"><span id="pPrice"></span> <small>دينار — دفعة وحدة لحد الامتحان</small></div>
+    <div class="muted">يعني أرخص من محاضرة خصوصي وحدة، وتبقى وياك طول السنة.</div>
+    <ul class="feat">
+      <li>حل غير محدود تقريباً لأسئلة الرياضيات والفيزياء</li>
+      <li>امتحانات توقّع المعدل كل ما تريد</li>
+      <li>تقرير أسبوعي لأهلك على الواتساب</li>
+    </ul>
+    <label>عندك كود تفعيل؟</label>
+    <input id="codeIn" placeholder="مثلاً: AB12CD34" style="text-transform:uppercase;letter-spacing:2px;text-align:center">
+    <div id="codeErr" class="err hidden"></div>
+    <div style="height:10px"></div>
+    <button class="btn gold" onclick="redeem()">فعّل الباقة</button>
+    <button class="btn wa" id="buyWa" onclick="buyWa()">ما عندي كود؟ اشتري من الواتساب</button>
+    <button class="btn ghost" onclick="closePay()">بعدين</button>
   </div>
 </div>
 
 <script>
-let subject = "math", imgData = null, imgMime = null;
+const $ = s => document.querySelector(s);
+let CFG = null, ME = null, TOKEN = localStorage.getItem("ustadh_token") || "", SUBJ = "math", IMG = null, QUIZ = null;
+const fmt = n => Number(n).toLocaleString("ar-IQ");
 
-// تحويل التنسيق (### و ** و ---) لعناوين وخط عريض بشكل آمن
-function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function renderMd(md){
-  return esc(md).split("\n").map(line => {
-    const t = line.trim();
-    if (/^-{3,}$/.test(t)) return '<hr>';
-    let m;
-    if ((m = t.match(/^#{1,6}\s+(.*)$/))) return '<h3>' + inline(m[1]) + '</h3>';
-    if ((m = t.match(/^[-•]\s+(.*)$/))) return '<div class="li">• ' + inline(m[1]) + '</div>';
-    if (/^\(?\*?بالعراقي/.test(t)) return '<div class="iqline">' + inline(t) + '</div>';
-    if (t === "") return '<div class="sp"></div>';
-    return '<div>' + inline(line) + '</div>';
+async function api(url, opts = {}) {
+  const r = await fetch(url, { ...opts, headers: { "Content-Type": "application/json", "x-token": TOKEN, ...(opts.headers || {}) },
+    body: opts.body ? JSON.stringify(opts.body) : undefined });
+  const j = await r.json().catch(() => ({ error: "خطأ بالاتصال." }));
+  if (r.status === 401 && TOKEN && url !== "/api/register") { logout(); }
+  return { ok: r.ok, status: r.status, ...j };
+}
+function toast(t) { const d = document.createElement("div"); d.className = "toast"; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 2600); }
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+// ---------------- بداية ----------------
+(async function init() {
+  CFG = await (await fetch("/api/config")).json();
+  $("#fProv").innerHTML = '<option value="">اختار…</option>' + CFG.provinces.map(p => `<option>${p}</option>`).join("");
+  $("#fTarget").innerHTML = CFG.colleges.map(c => `<option>${c.name}</option>`).join("");
+  $("#pPrice").textContent = fmt(CFG.packagePrice);
+  const d = Math.ceil((new Date(CFG.examDate) - new Date()) / 864e5);
+  $("#daysLeft").textContent = d > 0 ? fmt(d) : "—";
+  if (TOKEN) { const r = await api("/api/me"); if (r.ok) { ME = r.user; return enter(); } }
+  $("#auth").classList.remove("hidden");
+})();
+
+let MODE = "new";
+function authMode(m) {
+  MODE = m;
+  $("#tabNew").classList.toggle("on", m === "new"); $("#tabOld").classList.toggle("on", m === "old");
+  $("#newFields").classList.toggle("hidden", m === "old"); $("#newFields2").classList.toggle("hidden", m === "old");
+  $("#authBtn").textContent = m === "new" ? "ابدأ — مجاناً" : "دخول";
+}
+async function doAuth() {
+  const b = { name: $("#fName").value, phone: $("#fPhone").value, pin: $("#fPin").value, province: $("#fProv").value, target: $("#fTarget").value };
+  $("#authBtn").disabled = true;
+  const r = await api("/api/register", { method: "POST", body: b });
+  $("#authBtn").disabled = false;
+  if (!r.ok) { $("#authErr").textContent = r.error; $("#authErr").classList.remove("hidden"); return; }
+  TOKEN = r.token; localStorage.setItem("ustadh_token", TOKEN); ME = r.user; enter();
+}
+function logout() { localStorage.removeItem("ustadh_token"); TOKEN = ""; location.reload(); }
+
+function enter() {
+  $("#auth").classList.add("hidden"); $("#main").classList.remove("hidden"); $("#nav").classList.remove("hidden");
+  refreshTop(); go(location.hash.slice(1) || "solve");
+}
+function refreshTop() {
+  $("#planPill").textContent = ME.paid ? "باقة الوزاري ✓" : "مجاني";
+  $("#planPill").className = "pill" + (ME.paid ? " gold" : "");
+  const lim = ME.paid ? ME.paidDaily : ME.freeDaily;
+  $("#quotaTxt").textContent = ME.paid ? `باقي لك اليوم ${fmt(Math.max(0, lim - ME.solvesToday))} سؤال.`
+    : `باقي لك ${fmt(Math.max(0, lim - ME.solvesToday))} من ${fmt(lim)} أسئلة مجانية اليوم.`;
+}
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => go(b.dataset.v));
+function go(v) {
+  if (!["solve", "predict", "rank", "me"].includes(v)) v = "solve";
+  location.hash = v;
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  ["solve", "predict", "rank", "me"].forEach(x => $("#v-" + x).classList.toggle("hidden", x !== v));
+  if (v === "predict") showPredict();
+  if (v === "rank") showRank();
+  if (v === "me") showMe();
+  window.scrollTo(0, 0);
+}
+
+// ---------------- حل سؤال ----------------
+document.querySelectorAll("[data-sub]").forEach(b => b.onclick = () => {
+  SUBJ = b.dataset.sub; document.querySelectorAll("[data-sub]").forEach(x => x.classList.toggle("on", x === b));
+});
+$("#pick").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  IMG = await shrink(f);
+  $("#preview").src = "data:image/jpeg;base64," + IMG; $("#preview").classList.remove("hidden"); $("#dropTxt").classList.add("hidden");
+  $("#solveBtn").disabled = false;
+};
+// نصغّر الصورة قبل الإرسال حتى تقل الكلفة ويصير أسرع
+function shrink(file) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => {
+      const max = 1600, s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas"); c.width = img.width * s; c.height = img.height * s;
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      res(c.toDataURL("image/jpeg", 0.85).split(",")[1]);
+    };
+    img.onerror = rej; img.src = URL.createObjectURL(file);
+  });
+}
+function md(t) {
+  return esc(t).split("\n").map(l => {
+    if (/^###\s*/.test(l)) return "<h3>" + l.replace(/^###\s*/, "") + "</h3>";
+    if (/^---+$/.test(l.trim())) return "<hr>";
+    return l.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>") + "<br>";
   }).join("");
 }
-function inline(s){
-  return s.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
-          .replace(/\*\((.+?)\)\*/g, '<span class="iq">($1)</span>')
-          .replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, '$1<i>$2</i>');
+async function solve() {
+  if (!IMG) return;
+  const btn = $("#solveBtn"); btn.disabled = true; btn.innerHTML = '<span class="spin"></span> الأستاذ ديحل…';
+  $("#solveErr").classList.add("hidden");
+  const r = await api("/api/solve", { method: "POST", body: { image: IMG, mimeType: "image/jpeg", subject: SUBJ } });
+  btn.disabled = false; btn.textContent = "حل السؤال";
+  if (r.ok) {
+    ME = r.user; refreshTop();
+    $("#answer").innerHTML = md(r.answer); $("#answerCard").classList.remove("hidden");
+    $("#answerCard").scrollIntoView({ behavior: "smooth" });
+  } else if (r.needPackage) {
+    openPay("خلصت أسئلتك المجانية لليوم. ارجع باچر، أو فعّل الباقة وكمّل هسه.");
+  } else { $("#solveErr").textContent = r.error; $("#solveErr").classList.remove("hidden"); }
 }
 
-function setSubj(s){
-  subject = s;
-  math.setAttribute ? 0 : 0;
-  document.getElementById("t-math").setAttribute("aria-selected", s==="math");
-  document.getElementById("t-phys").setAttribute("aria-selected", s==="physics");
+// ---------------- توقّع معدلك ----------------
+function showPredict() {
+  $("#quizBox").classList.add("hidden"); $("#marksBox").classList.add("hidden"); $("#predSteps").classList.remove("hidden");
+  const m = ME.marks || {};
+  const others = ["الإسلامية", "العربي", "الإنكليزي", "الكيمياء", "الأحياء"].every(s => m[s] != null);
+  const st = [
+    { done: m["الرياضيات"] != null, t: "امتحان الرياضيات", d: m["الرياضيات"] != null ? `نتيجتك ${m["الرياضيات"]}%` : "10 أسئلة من فصول الكتاب", a: "startQuiz('math')" },
+    { done: m["الفيزياء"] != null, t: "امتحان الفيزياء", d: m["الفيزياء"] != null ? `نتيجتك ${m["الفيزياء"]}%` : "10 أسئلة من فصول الكتاب", a: "startQuiz('physics')" },
+    { done: others, t: "باقي المواد", d: others ? "تم" : "تقديرك لدرجاتك بالخمس مواد الباقية", a: "openMarks()" }
+  ];
+  $("#stepsList").innerHTML = st.map((s, i) => `<div class="st ${s.done ? "done" : ""}"><span class="n">${s.done ? "✓" : i + 1}</span>
+    <div><b>${s.t}</b><div class="muted">${s.d}</div></div><button class="btn ${s.done ? "ghost" : ""} mini" onclick="${s.a}">${s.done ? "أعد" : "ابدأ"}</button></div>`).join("");
+  renderResult();
 }
-function pick(e){
-  const f = e.target.files[0];
-  if(!f) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const d = reader.result;
-    imgMime = d.substring(5, d.indexOf(";"));
-    imgData = d.substring(d.indexOf(",")+1);
-    const p = document.getElementById("preview");
-    p.src = d; p.hidden = false;
-  };
-  reader.readAsDataURL(f);
+function renderResult() {
+  const box = $("#predResult");
+  if (ME.predicted == null) { box.innerHTML = ""; return; }
+  const ok = ME.gap <= 0;
+  box.innerHTML = `<div class="card" style="text-align:center">
+    <div class="muted">معدلك المتوقع هسه</div>
+    <div class="big">${ME.predicted}</div>
+    <div class="gapbox ${ok ? "ok" : "bad"}">${ok
+      ? `ممتاز! إنت فوك حد <b>${esc(ME.target)}</b> (${ME.targetMin}). حافظ عليه، الوزاري ما يرحم.`
+      : `<b>${esc(ME.target)}</b> يحتاج تقريباً ${ME.targetMin}.<br>ناقصك <b style="font-size:22px">${ME.gap}</b> درجة بالمعدل.`}</div>
+    ${ME.weak.length ? `<div style="text-align:right"><b>الفصول اللي تضيّع منها درجات:</b>
+      ${ME.weak.slice(0, 6).map(w => `<div class="weak"><span>${esc(w.name)}</span><span class="bar"><i style="width:${100 - w.pct}%"></i></span></div>`).join("")}</div>` : ""}
+    <div style="height:14px"></div>
+    ${ME.paid ? `<button class="btn" onclick="go('solve')">صوّر أسئلة من هالفصول وخلّي الأستاذ يحلها</button>`
+      : `<button class="btn gold" onclick="openPay('سدّ النقص قبل الوزاري: حل غير محدود لأسئلة هالفصول.')">سدّ النقص — باقة الوزاري</button>`}
+    <div class="muted" style="margin-top:8px">حدود القبول تقريبية وتتغير كل سنة.</div>
+  </div>`;
 }
-async function solve(){
-  const err = document.getElementById("err");
-  err.hidden = true;
-  if(!imgData){ err.textContent = "صوّر السؤال أول."; err.hidden = false; return; }
+async function startQuiz(subject) {
+  const r = await api("/api/quiz/" + subject);
+  if (!r.ok) return toast(r.error);
+  QUIZ = { subject, qs: r.questions, i: 0, ans: {} };
+  $("#predSteps").classList.add("hidden"); $("#predResult").innerHTML = ""; $("#quizBox").classList.remove("hidden");
+  renderQ();
+}
+function renderQ() {
+  const { qs, i, ans } = QUIZ, q = qs[i];
+  $("#quizBox").innerHTML = `<div class="muted">${QUIZ.subject === "math" ? "الرياضيات" : "الفيزياء"} · سؤال ${i + 1} من ${qs.length} · <span class="chip">${esc(q.chapter)}</span></div>
+    <div class="prog"><i style="width:${100 * i / qs.length}%"></i></div>
+    <h2 dir="auto">${esc(q.q)}</h2>
+    ${q.options.map((o, k) => `<button class="opt ${ans[q.id] === k ? "on" : ""}" dir="auto" onclick="choose(${k})">${esc(o)}</button>`).join("")}
+    <div style="height:8px"></div>
+    <button class="btn" ${ans[q.id] == null ? "disabled" : ""} onclick="nextQ()">${i + 1 === qs.length ? "خلصت — شوف النتيجة" : "التالي"}</button>`;
+}
+function choose(k) { QUIZ.ans[QUIZ.qs[QUIZ.i].id] = k; renderQ(); }
+async function nextQ() {
+  if (QUIZ.i + 1 < QUIZ.qs.length) { QUIZ.i++; return renderQ(); }
+  const r = await api("/api/quiz/" + QUIZ.subject, { method: "POST", body: { answers: QUIZ.ans } });
+  if (!r.ok) return toast(r.error);
+  ME = r.user;
+  $("#quizBox").innerHTML = `<div style="text-align:center"><div class="muted">نتيجتك</div><div class="big">${r.score}%</div>
+    <div class="muted">${r.right} صح من ${r.total}</div></div>
+    <h3>المراجعة</h3>
+    ${r.review.map(x => `<div class="weak" style="display:block"><div dir="auto">${x.ok ? "✅" : "❌"} ${esc(x.q)}</div>
+      ${x.ok ? "" : `<div class="muted">جوابك: ${esc(x.chosen)} — الصحيح: <b>${esc(x.correct)}</b></div>`}</div>`).join("")}
+    <div style="height:14px"></div><button class="btn" onclick="showPredict()">كمّل</button>`;
+}
+function openMarks() {
+  $("#predSteps").classList.add("hidden"); $("#predResult").innerHTML = ""; $("#marksBox").classList.remove("hidden");
+  const m = ME.marks || {};
+  $("#sliders").innerHTML = ["الإسلامية", "العربي", "الإنكليزي", "الكيمياء", "الأحياء"].map(s => {
+    const v = m[s] ?? 80;
+    return `<label>${s}</label><div class="slider"><input type="range" min="40" max="100" value="${v}" data-s="${s}" oninput="this.nextElementSibling.textContent=this.value"><b>${v}</b></div>`;
+  }).join("");
+}
+async function saveMarks() {
+  const marks = {}; document.querySelectorAll("#sliders input").forEach(i => marks[i.dataset.s] = Number(i.value));
+  const r = await api("/api/me", { method: "POST", body: { marks } });
+  if (r.ok) { ME = r.user; showPredict(); }
+}
 
-  const btn = document.getElementById("solve");
-  btn.disabled = true; btn.innerHTML = 'دا يحل <span class="spin"></span>';
-  const rc = document.getElementById("resultCard"), rb = document.getElementById("result");
-  rc.hidden = false; rb.textContent = "دا يقرا السؤال ويحله...";
+// ---------------- الترتيب ----------------
+function showRank() {
+  const r = ME.rank;
+  $("#v-rank").innerHTML = !r ? `<div class="card"><h2>ترتيبك</h2><div class="muted">حتى يطلع ترتيبك بين طلاب محافظتك والعراق، كمّل «توقّع معدلك» أول.</div>
+    <div style="height:12px"></div><button class="btn" onclick="go('predict')">توقّع معدلك</button></div>`
+  : `<div class="card"><h2>ترتيبك حسب المعدل المتوقع</h2><div class="muted">بين طلاب أستاذ بجيبك</div></div>
+    <div class="rankbig"><div class="card"><div class="muted">${esc(ME.province)}</div><b>${fmt(r.province)}</b><div class="muted">من ${fmt(r.provinceTotal)}</div></div>
+    <div class="card"><div class="muted">العراق</div><b>${fmt(r.iraq)}</b><div class="muted">من ${fmt(r.iraqTotal)}</div></div></div>
+    <div class="card"><div class="muted">كل امتحان تعيده وتتحسن بيه، يرفع ترتيبك. وكل صديق يسجّل، يصير الترتيب أدق.</div>
+    <div style="height:12px"></div><button class="btn wa" onclick="shareApp()">تحدّى أصدقاءك على الواتساب</button></div>`;
+}
+function shareApp() {
+  const t = `آني معدلي المتوقع ${ME.predicted ?? "؟"} 😏 وترتيبي بـ${ME.province} ${ME.rank?.province ?? ""}.\nتحداك تعرف معدلك: ${location.origin}`;
+  open("https://wa.me/?text=" + encodeURIComponent(t));
+}
 
-  try{
-    const r = await fetch("/api/solve", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        image: imgData, mimeType: imgMime, subject,
-        student: document.getElementById("student").value
-      })
-    });
-    const j = await r.json();
-    if(!r.ok){ rc.hidden = true; err.textContent = j.error || "صار خطأ."; err.hidden = false; }
-    else rb.innerHTML = renderMd(j.answer);
-  }catch(e){
-    rc.hidden = true; err.textContent = "ماكو اتصال. تأكد من الانترنت وجرب مرة ثانية."; err.hidden = false;
-  }finally{
-    btn.disabled = false; btn.textContent = "حل السؤال";
-  }
+// ---------------- حسابي ----------------
+function showMe() {
+  const link = location.origin + "/p/" + ME.parentToken;
+  $("#v-me").innerHTML = `<div class="card"><h2>${esc(ME.name)}</h2><div class="muted">${esc(ME.phone)} · ${esc(ME.province)}</div>
+    <label>الكلية اللي تريدها</label><select id="tSel" onchange="setTarget(this.value)">${CFG.colleges.map(c => `<option ${c.name === ME.target ? "selected" : ""}>${c.name}</option>`).join("")}</select></div>
+    <div class="card">${ME.paid ? `<h2>باقة الوزاري ✓</h2><div class="muted">فعّالة لحد ${ME.paidUntil}</div>`
+      : `<h2>إنت على النسخة المجانية</h2><div class="muted">${fmt(ME.freeDaily)} أسئلة باليوم بس.</div><div style="height:12px"></div>
+        <button class="btn gold" onclick="openPay('')">فعّل باقة الوزاري</button>`}</div>
+    <div class="card"><h2>تقرير لأهلك 👨‍👩‍👦</h2><div class="muted">ابعث الرابط لأبوك أو أمك، يشوفون تقدمك ومعدلك المتوقع أول بأول.</div>
+      <div style="height:12px"></div><button class="btn wa" onclick="sendParent()">ابعثه على الواتساب</button></div>
+    <button class="btn ghost" onclick="logout()">تسجيل خروج</button>`;
+}
+async function setTarget(v) { const r = await api("/api/me", { method: "POST", body: { target: v } }); if (r.ok) { ME = r.user; toast("تم"); } }
+function sendParent() {
+  const t = `هذا تقرير دراستي بأستاذ بجيبك، بيه معدلي المتوقع والفصول اللي أحتاج أقويها:\n${location.origin}/p/${ME.parentToken}`;
+  open("https://wa.me/?text=" + encodeURIComponent(t));
+}
+
+// ---------------- الباقة ----------------
+function openPay(why) { $("#payWhy").textContent = why || ""; $("#codeErr").classList.add("hidden"); $("#buyWa").classList.toggle("hidden", !CFG.whatsapp); $("#payModal").classList.add("show"); }
+function closePay() { $("#payModal").classList.remove("show"); }
+async function redeem() {
+  const r = await api("/api/redeem", { method: "POST", body: { code: $("#codeIn").value } });
+  if (!r.ok) { $("#codeErr").textContent = r.error; $("#codeErr").classList.remove("hidden"); return; }
+  ME = r.user; refreshTop(); closePay(); toast("مبروك! الباقة تفعّلت 🎉"); go(location.hash.slice(1));
+}
+function buyWa() {
+  const t = `مرحبا، أريد أشتري باقة الوزاري بأستاذ بجيبك.\nاسمي: ${ME.name}\nرقمي بالتطبيق: ${ME.phone}`;
+  open(`https://wa.me/${CFG.whatsapp}?text=` + encodeURIComponent(t));
 }
 </script>
 </body>

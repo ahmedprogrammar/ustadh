@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f1b3d">
+<title>تقرير الطالب — أستاذ بجيبك</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0f1b3d;--bg:#f4f1ea;--line:#e6e0d3;--muted:#6b6f80;--gold:#e9a23b;--ok:#1f9d6b;--okbg:#e3f6ee;--bad:#d64545;--badbg:#fde8e8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans Arabic",Tahoma,sans-serif;line-height:1.6}
+.wrap{max-width:520px;margin:0 auto}
+.top{background:var(--ink);color:#fff;padding:22px 18px;border-radius:0 0 22px 22px}
+.top b{color:var(--gold)}.top h1{margin:6px 0 0;font-size:22px}
+main{padding:16px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
+.muted{color:var(--muted);font-size:14px}.big{font-size:52px;font-weight:700;line-height:1}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid .card{margin:0;text-align:center}.grid b{font-size:28px;display:block}
+.box{border-radius:14px;padding:12px;margin-top:12px}.box.bad{background:var(--badbg);color:#8b2323}.box.ok{background:var(--okbg);color:#11593c}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}
+h2{font-size:17px;margin:0 0 8px}
+</style>
+</head>
+<body><div class="wrap">
+<div class="top"><div><b>أستاذ بجيبك</b> · تقرير ولي الأمر</div><h1 id="name">…</h1><div id="sub" style="opacity:.8"></div></div>
+<main id="m"><div class="card">جارِ التحميل…</div></main>
+</div>
+<script>
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const t = location.pathname.split("/p/")[1] || new URLSearchParams(location.search).get("t");
+fetch("/api/parent/" + encodeURIComponent(t)).then(r => r.json()).then(d => {
+  if (d.error) { document.getElementById("m").innerHTML = `<div class="card">${esc(d.error)}</div>`; return; }
+  document.getElementById("name").textContent = d.name;
+  document.getElementById("sub").textContent = `${d.province} · يطمح لـ${d.target}`;
+  const ok = d.gap != null && d.gap <= 0;
+  document.getElementById("m").innerHTML = `
+    <div class="card" style="text-align:center"><div class="muted">المعدل المتوقع</div>
+      <div class="big">${d.predicted ?? "—"}</div>
+      ${d.predicted == null ? `<div class="muted">ابنكم بعده ما كمّل امتحان التوقّع.</div>` :
+      `<div class="box ${ok ? "ok" : "bad"}">${ok ? `فوك حد ${esc(d.target)} التقريبي (${d.targetMin}). ممتاز.` :
+        `${esc(d.target)} يحتاج تقريباً ${d.targetMin}. <b>ناقصه ${d.gap} درجة.</b>`}</div>`}</div>
+    <div class="grid">
+      <div class="card"><div class="muted">أسئلة حلها هالأسبوع</div><b>${d.weekSolves}</b></div>
+      <div class="card"><div class="muted">امتحانات هالأسبوع</div><b>${d.weekQuizzes.length}</b></div>
+    </div><div style="height:14px"></div>
+    ${d.rank ? `<div class="card"><h2>الترتيب</h2><div class="row"><span>بمحافظة ${esc(d.province)}</span><b>${d.rank.province} من ${d.rank.provinceTotal}</b></div>
+      <div class="row"><span>بالعراق</span><b>${d.rank.iraq} من ${d.rank.iraqTotal}</b></div></div>` : ""}
+    ${d.weak.length ? `<div class="card"><h2>الفصول اللي يحتاج يقويها</h2>${d.weak.map(w => `<div class="row"><span>${esc(w.name)}</span><span>${w.pct}%</span></div>`).join("")}</div>` : ""}
+    ${d.lastQuizzes.length ? `<div class="card"><h2>آخر الامتحانات</h2>${d.lastQuizzes.slice().reverse().map(q => `<div class="row"><span>${esc(q.subject)} · ${new Date(q.at).toLocaleDateString("ar-IQ")}</span><b>${q.score}%</b></div>`).join("")}</div>` : ""}
+    ${d.paid ? "" : `<div class="card"><h2>باقة الوزاري</h2><div class="muted">ابنكم على النسخة المجانية (3 أسئلة باليوم). الباقة تفتحله الحل لحد يوم الامتحان، بسعر أقل من محاضرة خصوصي وحدة.</div></div>`}`;
+});
+</script>
+</body></html>
