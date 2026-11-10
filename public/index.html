@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f1b3d">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="أستاذ بجيبك">
 <title>أستاذ بجيبك — السادس العلمي</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -87,7 +92,7 @@ ul.feat{padding:0 18px 0 0;margin:10px 0}ul.feat li{margin:4px 0}
 <!-- ========== التسجيل ========== -->
 <section id="auth" class="hidden">
   <div class="hero">
-    <div class="brand">أستاذ <span>بجيبك</span></div>
+    <div class="row" style="display:flex;justify-content:space-between;align-items:center"><div class="brand">أستاذ <span>بجيبك</span></div><button class="pill gold installBtn hidden" onclick="installApp()" style="border:0">📲 ثبّت التطبيق</button></div>
     <h1>معدلك يحدد <span>كليتك</span>.<br>اعرف وين واقف هسه.</h1>
     <div style="opacity:.85">امتحان قصير يطلعلك معدلك المتوقع، والفصول اللي تضيّع منها درجات، وأستاذ يحل أي سؤال تصوّره.</div>
   </div>
@@ -113,7 +118,7 @@ ul.feat{padding:0 18px 0 0;margin:10px 0}ul.feat li{margin:4px 0}
 <!-- ========== التطبيق ========== -->
 <section id="main" class="hidden">
   <div class="top">
-    <div class="row"><div class="brand">أستاذ <span>بجيبك</span></div><div id="planPill" class="pill">مجاني</div></div>
+    <div class="row"><div class="brand">أستاذ <span>بجيبك</span></div><div style="display:flex;gap:6px"><button class="pill gold installBtn hidden" onclick="installApp()" style="border:0">📲 ثبّت</button><div id="planPill" class="pill">مجاني</div></div></div>
     <div class="count"><b id="daysLeft">—</b><small>يوم باقي على الوزاري</small></div>
   </div>
 
@@ -423,6 +428,20 @@ async function redeem() {
 function buyWa() {
   const t = `مرحبا، أريد أشتري باقة الوزاري بأستاذ بجيبك.\nاسمي: ${ME.name}\nرقمي بالتطبيق: ${ME.phone}`;
   open(`https://wa.me/${CFG.whatsapp}?text=` + encodeURIComponent(t));
+}
+
+// ---------------- التثبيت كتطبيق ----------------
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
+let DEFERRED = null;
+const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); DEFERRED = e; showInstall(); });
+function showInstall() { if (!standalone) document.querySelectorAll(".installBtn").forEach(b => b.classList.remove("hidden")); }
+if (isIOS && !standalone) showInstall();
+async function installApp() {
+  if (DEFERRED) { DEFERRED.prompt(); await DEFERRED.userChoice; DEFERRED = null; document.querySelectorAll(".installBtn").forEach(b => b.classList.add("hidden")); return; }
+  alert(isIOS ? "بالآيفون: اضغط زر المشاركة (المربع والسهم) بأسفل سفاري، وبعدين «إضافة إلى الشاشة الرئيسية»." 
+              : "من قائمة كروم (⋮) اختار «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».");
 }
 </script>
 </body>
