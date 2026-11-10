@@ -271,33 +271,62 @@ function buildPrompt(subject) {
   return common + (subject === "physics" ? physics : math) + format;
 }
 
+// سبب الخطأ بالعربي حتى نعرف شنو صار بالضبط
+function reasonAr(status, body) {
+  const b = (body || "").toLowerCase();
+  if (status === 401 || b.includes("api key not valid") || b.includes("invalid x-api-key") || b.includes("authentication"))
+    return "مفتاح الذكاء الاصطناعي غلط أو منتهي.";
+  if (b.includes("credit balance") || b.includes("billing") || status === 402) return "رصيد الذكاء الاصطناعي خلص. لازم تشحن.";
+  if (status === 429 || b.includes("quota") || b.includes("rate")) return "الحصة المجانية خلصت أو ضغط كبير. جرب بعد دقيقة.";
+  if (status === 529 || status === 503 || b.includes("overloaded")) return "خدمة الذكاء الاصطناعي مزدحمة هسه. جرب بعد شوية.";
+  return "خطأ " + status;
+}
+class AIError extends Error { constructor(msg, detail) { super(msg); this.detail = detail; } }
+
 async function askAI(prompt, image, media) {
   if (PROVIDER === "mock") return "### 📘 السؤال\nجد ∫ 3x^2 dx\n### ✍️ الحل\n**الخطوة 1: نكامل**\n= x^3 + c\nبالعراقي: نزيد الأس واحد ونقسم عليه.\n### ✅ الجواب النهائي\n**x^3 + c**";
+  let lastStatus = 0, lastBody = "";
   if (PROVIDER === "claude") {
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-api-key": CLAUDE_API_KEY, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 2000, messages: [{ role: "user", content: [
-        { type: "image", source: { type: "base64", media_type: media, data: image } },
-        { type: "text", text: prompt }] }] })
-    });
-    if (!r.ok) throw new Error("Claude " + r.status + ": " + (await r.text()).slice(0, 300));
-    const j = await r.json();
-    return (j.content || []).filter(p => p.type === "text").map(p => p.text).join("");
+    const models = [CLAUDE_MODEL, "claude-haiku-5-5", "claude-sonnet-5-5", "claude-sonnet-4-5", "claude-haiku-4-5"].filter((v, i, a) => v && a.indexOf(v) === i);
+    for (const model of models) {
+      const content = image
+        ? [{ type: "image", source: { type: "base64", media_type: media, data: image } }, { type: "text", text: prompt }]
+        : [{ type: "text", text: prompt }];
+      const r = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-api-key": CLAUDE_API_KEY, "anthropic-version": "2023-06-01" },
+        body: JSON.stringify({ model, max_tokens: 2000, messages: [{ role: "user", content }] })
+      });
+      if (r.ok) { const j = await r.json(); return (j.content || []).filter(p => p.type === "text").map(p => p.text).join(""); }
+      lastStatus = r.status; lastBody = (await r.text()).slice(0, 400);
+      console.error("Claude", model, lastStatus, lastBody);
+      // إذا المشكلة بالموديل نجرب اللي بعده، غير هيج نوقف
+      if (!(r.status === 404 || (r.status === 400 && lastBody.toLowerCase().includes("model")))) break;
+    }
+  } else {
+    const models = [GEMINI_MODEL, "gemini-flash-latest", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash"].filter((v, i, a) => v && a.indexOf(v) === i);
+    for (const m of models) {
+      const parts = image ? [{ text: prompt }, { inline_data: { mime_type: media, data: image } }] : [{ text: prompt }];
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${GEMINI_API_KEY}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contents: [{ parts }], generationConfig: { temperature: 0.2 } })
+      });
+      if (r.ok) { const j = await r.json(); return j?.candidates?.[0]?.content?.parts?.map(p => p.text).join("") || ""; }
+      lastStatus = r.status; lastBody = (await r.text()).slice(0, 400);
+      console.error("Gemini", m, lastStatus, lastBody);
+      if (r.status === 401 || r.status === 403) break;
+    }
   }
-  const models = [GEMINI_MODEL, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"].filter((v, i, a) => a.indexOf(v) === i);
-  let last = "";
-  for (const m of models) {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${GEMINI_API_KEY}`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: media, data: image } }] }],
-        generationConfig: { temperature: 0.2 } })
-    });
-    if (r.ok) { const j = await r.json(); return j?.candidates?.[0]?.content?.parts?.map(p => p.text).join("") || ""; }
-    last = `${m} ${r.status}`;
-  }
-  throw new Error("Gemini: " + last);
+  throw new AIError(reasonAr(lastStatus, lastBody), `${PROVIDER} ${lastStatus}: ${lastBody}`);
 }
+
+app.get("/api/admin/test-ai", admin, async (req, res) => {
+  try {
+    const t = Date.now();
+    const a = await askAI("جاوب بكلمة وحدة: كم ناتج 2+2؟", null, null);
+    res.json({ ok: true, provider: PROVIDER, ms: Date.now() - t, answer: a.slice(0, 100) });
+  } catch (e) { res.json({ ok: false, provider: PROVIDER, error: e.message, detail: e.detail || String(e) }); }
+});
 
 app.post("/api/solve", auth, async (req, res) => {
   const s = db.settings, u = req.user;
@@ -323,8 +352,8 @@ app.post("/api/solve", auth, async (req, res) => {
     save();
     res.json({ answer, user: publicUser(u) });
   } catch (e) {
-    console.error(e.message);
-    res.status(502).json({ error: "صار خطأ بالاتصال بالذكاء الاصطناعي. جرب مرة ثانية." });
+    console.error(e.detail || e.message);
+    res.status(502).json({ error: "ما گدرنا نحل السؤال: " + (e.message || "خطأ غير معروف") });
   }
 });
 

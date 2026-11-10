@@ -35,7 +35,8 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px;borde
 </div>
 
 <div id="app" class="hidden">
-  <header><h1>أستاذ <span>بجيبك</span> · الإدارة</h1><button id="toggle" onclick="toggleSvc()"></button></header>
+  <header><h1>أستاذ <span>بجيبك</span> · الإدارة</h1><div><button class="gold" onclick="testAI()">🔎 فحص الذكاء الاصطناعي</button> <button id="toggle" onclick="toggleSvc()"></button></div></header>
+  <div id="aiRes" class="card hidden"></div>
   <div class="stats" id="stats"></div>
   <div class="tabs"><button data-t="codes" class="on">أكواد التفعيل</button><button data-t="users">الطلاب</button><button data-t="settings">الإعدادات</button><button data-t="questions">بنك الأسئلة</button></div>
 
@@ -114,6 +115,12 @@ document.querySelectorAll(".tabs button").forEach(b => b.onclick = async () => {
   ["codes", "users", "settings", "questions"].forEach(t => $("#t-" + t).classList.toggle("hidden", t !== b.dataset.t));
   if (b.dataset.t === "questions") { const q = await api("/api/admin/questions"); delete q.ok; $("#qJson").value = JSON.stringify(q, null, 2); }
 });
+async function testAI() {
+  const b = $("#aiRes"); b.classList.remove("hidden"); b.textContent = "جارِ الفحص…";
+  const r = await api("/api/admin/test-ai");
+  b.innerHTML = r.ok ? `✅ الذكاء الاصطناعي شغّال (${esc(r.provider)}) — رد خلال ${r.ms} ملي ثانية: ${esc(r.answer)}`
+    : `❌ <b>${esc(r.error)}</b><div class="muted" style="direction:ltr;text-align:left;margin-top:6px">${esc(r.detail)}</div>`;
+}
 async function toggleSvc() { await api("/api/admin/settings", { enabled: !D.settings.enabled }); load(); }
 async function makeCodes() {
   const r = await api("/api/admin/codes", { count: $("#cCount").value, note: $("#cNote").value });
